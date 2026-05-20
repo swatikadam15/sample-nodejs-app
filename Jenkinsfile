@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE = "swatikadam16/sample-nodejs-app"
         TAG = "${env.BRANCH_NAME}"
-        EC2 = "13.206.237.110"
+        EC2 = "43.205.195.222"
         USER = "ec2-user"
     }
 
