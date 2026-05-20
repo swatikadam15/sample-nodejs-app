@@ -5,7 +5,7 @@ pipeline {
         IMAGE = "swatikadam16/sample-nodejs-app"
         TAG = "${env.BRANCH_NAME}"
         EC2 = "43.205.195.222"
-        USER = "ec2-user"
+        USER = "ubuntu"
     }
 
     stages {
@@ -18,37 +18,50 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t $IMAGE:$TAG ."
+                sh "docker build -t ${IMAGE}:${TAG} ."
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Docker Login & Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
 
-                    sh """
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    docker push $IMAGE:$TAG
-                    """
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push ${IMAGE}:${TAG}
+                    '''
                 }
             }
         }
 
         stage('Deploy to EC2') {
             steps {
-           sshagent(['ec2-ssh-key']) {
-                sh """
-                ssh -o StrictHostKeyChecking=no $USER@$EC2 '
-                docker pull $IMAGE:$TAG &&
-                docker stop nodeapp || true &&
-                docker rm nodeapp || true &&
-                docker run -d -p 3000:3000 --name nodeapp $IMAGE:$TAG
-                '
-                """
+
+                sshagent(['ec2-ssh-key']) {
+
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ${USER}@${EC2} "
+
+                    docker pull ${IMAGE}:${TAG}
+
+                    docker stop nodeapp || true
+                    docker rm nodeapp || true
+
+                    docker run -d \
+                    -p 3000:3000 \
+                    --name nodeapp \
+                    ${IMAGE}:${TAG}
+
+                    "
+                    '''
+                }
             }
         }
-    }
     }
 }
