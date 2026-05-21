@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE = "swatikadam16/sample-nodejs-app"
-        TAG = "${env.BRANCH_NAME}"
+        TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
         EC2 = "43.205.195.222"
         USER = "ubuntu"
     }
@@ -18,6 +18,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+                echo "${env.GIT_COMMIT}"
                 sh "docker build -t ${IMAGE}:${TAG} ."
             }
         }
