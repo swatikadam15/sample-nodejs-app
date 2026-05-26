@@ -138,12 +138,6 @@ Add screenshots here:
 docker run -d -p 80:3000 repo/sample-app:latest
 <img width="940" height="530" alt="image" src="https://github.com/user-attachments/assets/404f8abe-7eb5-48f3-8877-b93be7324475" />
 
-Option 2: Kubernetes
-Create:
-● Deployment
-● Service
-
-<img width="940" height="535" alt="image" src="https://github.com/user-attachments/assets/f1072788-1790-4367-a87a-a4603739c7bd" />
 
 - Docker Hub Image
 
